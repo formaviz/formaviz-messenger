@@ -47,3 +47,11 @@ this api allows us to connect with rabbitmq server, send a message or again cons
 2. Routing RABBITMQ
 
 3. Routing
+
+4. Node Server 
+
+To install Slack client 
+
+```
+npm install @slack/client
+```
