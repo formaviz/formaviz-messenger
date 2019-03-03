@@ -29,6 +29,7 @@
     "eslint-plugin-import": "^2.14.0"
   },
   "dependencies": {
+    "@slack/client": "^4.10.0",
     "amqplib": "^0.5.3",
     "bcrypt": "^3.0.4",
     "cors": "^2.8.5",
