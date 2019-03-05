@@ -35,7 +35,7 @@ apiRoutes
   .use(isAuthenticated)
   .use('/users', apiUsersProtected)
   .use('/groups', apiGroupProtected)
-  .use('/posts',apiPostProtected)
+  .use('/posts', apiPostProtected)
   .use((err, req, res, next) => {
     res.status(403).send({
       success: false,

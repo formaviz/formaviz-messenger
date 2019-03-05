@@ -1,13 +1,20 @@
-// Create a new instance of the WebClient class with the token read from your environment variable
-const web = new WebClient(process.env.SLACK_TOKEN);
-const channelName = new String('nomChannelBACK');
+function createChannel(datas) {
 
-(async () => {
-    // Use the `auth.test` method to find information about the installing user
-    const res = await web.auth.test()
-    await web.channels.create({
-        name: channelName,
+    // const res = web.auth.test()
+    web.channels.create({
+        name: datas.name,
+        token: datas.token
     });
 
     console.log('Message posted!');
-})();
+};
+
+function addMember(datas) {
+    web.channels.invite({
+        name: datas.name,
+        token: datas.token
+    });
+    console.log('Member added !');
+}
+
+export { createChannel, addMember };
