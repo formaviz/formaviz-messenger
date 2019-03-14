@@ -12,6 +12,11 @@ const api = require('./api');
 // connect to rabbitmq 
 
 amqp.connect(AMQP_URL).then(function(conn){
+  api.listen(process.env.PORT, '0.0.0.0', err =>
+      err
+        ? logger.error(`🔥  Failed to start API : ${err.stack}`)
+        : logger.info(`🌎  API is listening on port ${port}`)
+    );
   conn.createChannel().then(function(channel) {
     rpcConsumer(channel,AMQP_USER_QUEUE_NAME,(object)=>{logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue : ",AMQP_USER_QUEUE_NAME);return object;});
     rpcConsumer(channel,AMQP_TRAINING_QUEUE_NAME,(object)=>{logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue: ",AMQP_TRAINING_QUEUE_NAME);return object;});
@@ -23,4 +28,3 @@ amqp.connect(AMQP_URL).then(function(conn){
 }).catch(function(err) {
   logger.error(`🔥  Failed to start API : ${err.stack}`)
 });
-api.listen(process.env.PORT, '0.0.0.0');
