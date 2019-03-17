@@ -1,20 +1,40 @@
-function createChannel(datas) {
+const omit = require('lodash.omit');
+const logger = require('../logger');
 
-    // const res = web.auth.test()
-    web.channels.create({
+
+const createChannel = (datas) => {
+    return web.channels.create({
         name: datas.name,
         token: datas.token
-    });
+    }).then(channel => {
+        logger.info("Channel created");
+        return omit(
+            channel.get({
+                plain: true
+            }
+            )
+        )
+    }
 
-    console.log('Message posted!');
-};
+    );
 
-function addMember(datas) {
+}
+
+
+const addMember = (datas) => {
     web.channels.invite({
         name: datas.name,
         token: datas.token
+    }).then(channel => {
+        logger.info("Member added");
+        return omit(
+            channel.get({
+                plain: true
+            }
+            )
+        )
     });
-    console.log('Member added !');
+
 }
 
 export { createChannel, addMember };

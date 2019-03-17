@@ -1,4 +1,4 @@
-const {consume,rpcConsumer} = require('./utils/rabbit.js')
+const { consume, rpcConsumer } = require('./utils/rabbit.js')
 
 const amqp = require('amqplib');
 const logger = require('./logger');
@@ -11,20 +11,20 @@ const api = require('./api');
 
 // connect to rabbitmq 
 
-amqp.connect(AMQP_URL).then(function(conn){
+amqp.connect(AMQP_URL).then(function (conn) {
   api.listen(process.env.PORT, '0.0.0.0', err =>
-      err
-        ? logger.error(`🔥  Failed to start API : ${err.stack}`)
-        : logger.info(`🌎  API is listening on port`)
-    );
-  conn.createChannel().then(function(channel) {
-    rpcConsumer(channel,AMQP_USER_QUEUE_NAME,(object)=>{logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue : ",AMQP_USER_QUEUE_NAME);return object;});
-    rpcConsumer(channel,AMQP_TRAINING_QUEUE_NAME,(object)=>{logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue: ",AMQP_TRAINING_QUEUE_NAME);return object;});
-    rpcConsumer(channel,AMQP_EVAL_QUEUE_NAME,(object)=>{logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue :",AMQP_EVAL_QUEUE_NAME);return object;});
+    err
+      ? logger.error(`🔥  Failed to start API : ${err.stack}`)
+      : logger.info(`🌎  API is listening on port`)
+  );
+  conn.createChannel().then(function (channel) {
+    rpcConsumer(channel, AMQP_USER_QUEUE_NAME, (object) => { logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue : ", AMQP_USER_QUEUE_NAME); return object; });
+    rpcConsumer(channel, AMQP_TRAINING_QUEUE_NAME, (object) => { logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue: ", AMQP_TRAINING_QUEUE_NAME); return object; });
+    rpcConsumer(channel, AMQP_EVAL_QUEUE_NAME, (object) => { logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue :", AMQP_EVAL_QUEUE_NAME); return object; });
   })
-  .catch(function(err) {
-    logger.error(`🔥  Failed to start API : ${err.stack}`)
-  })
-}).catch(function(err) {
+    .catch(function (err) {
+      logger.error(`🔥  Failed to start API : ${err.stack}`)
+    })
+}).catch(function (err) {
   logger.error(`🔥  Failed to start API : ${err.stack}`)
 });
