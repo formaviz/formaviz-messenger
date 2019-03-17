@@ -19,8 +19,6 @@ const createChannel = (datas) => {
     );
 
 }
-
-
 const addMember = (datas) => {
     web.channels.invite({
         name: datas.name,
