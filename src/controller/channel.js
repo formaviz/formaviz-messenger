@@ -1,36 +1,33 @@
 const omit = require('lodash.omit');
 const logger = require('../logger');
 
-
-const createChannel = (datas) => {
+const createChannel = (datas, legacy_token) => {
+    if (datas.name == null) return new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel');
     return web.channels.create({
         name: datas.name,
-        token: datas.token
+        token: legacy_token
     }).then(channel => {
         logger.info("Channel created");
-        return omit(
-            channel.get({
-                plain: true
-            }
-            )
-        )
+        return new Answer('CREATE_FORMATION', 'SUCCESS', 'Channel added')
     }
-    );
+    )
+        .catch((err) => {
+            return new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel');
+        }
+        );
 }
-const addMember = (datas) => {
-    web.channels.invite({
+
+
+
+function postNote(datas) {
+    web.chat.postMessage({
+
         name: datas.name,
         token: datas.token
-    }).then(channel => {
-        logger.info("Member added");
-        return omit(
-            channel.get({
-                plain: true
-            }
-            )
-        )
+
     });
+    console.log('Message posted !');
 
 }
 
-export { createChannel, addMember };
+export { createChannel, postNot };
