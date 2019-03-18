@@ -21,7 +21,7 @@ const checkQueue = (channel,queueName) => {
  * @param {boolean} rpc 
  * @param {*} parameter {noAck: true} for example it's parameters RABBITMQ
  */
-const consume = (channel,queueName,successCallback,rpc,parameter) => {
+const consume = (channel,queueName,successCallback,rpc,parameter,parameterCallBack) => {
     return checkQueue(channel,queueName)
     .then(() => {
             if(rpc) {
@@ -31,7 +31,7 @@ const consume = (channel,queueName,successCallback,rpc,parameter) => {
             return channel.consume(queueName, function(msg) {
                 logger.info("[CONSUMMER][",queueName,"] waiting consum a message ",msg.content)
                 //execute callback
-                var result = successCallback(msg);
+                var result = successCallback(msg,parameterCallBack);
                 if(rpc) {
                     // send result to producer
                     channel.sendToQueue(msg.properties.replyTo,
@@ -90,10 +90,11 @@ const rpcProducer = (conn,channel,queueName,message,successCallback) => {
  * @param {*} channel 
  * @param {String} queueName 
  * @param {Function} successCallback 
+ * @param {Array} parameter for the function callback
  */
-const rpcConsumer = (channel,queueName,successCallback) => {
-    logger.info("[RPC-CONSUMMER][",queueName,"] waiting consum a message ")
-    return consume(channel,queueName,successCallback,true,{});
+const rpcConsumer = (channel,queueName,successCallback,parameterCallBack) => {
+    logger.info("[RPC-CONSUMMER][",queueName,"] waiting consum a message ");
+    return consume(channel,queueName,successCallback,true,{},parameterCallBack);
 }
 
 module.exports = {consume,sender,rpcConsumer,rpcProducer};
