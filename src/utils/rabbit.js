@@ -29,12 +29,12 @@ const consume = (channel, queueName, successCallback, rpc, parameter, parameterC
                 channel.prefetch(1);
             }
             return channel.consume(queueName, function (msg) {
-                logger.info("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content);
+                logger.info("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content.toString());
                 //execute callback
                 var result = successCallback(msg, parameterCallBack);
 
                 if (rpc) {
-                    logger.info("RESPONSE", result);
+                    // logger.info("RESPONSE", result);
                     // send result to producer
                     channel.sendToQueue(msg.properties.replyTo,
                         Buffer.from(JSON.stringify(result)), { correlationId: msg.properties.correlationId });
@@ -79,10 +79,10 @@ const rpcProducer = (conn, channel, queueName, message, successCallback) => {
         var corr = uuidv4();
         consume(channel, "rpcQueue", (msg) => {
             if (msg.properties != null && msg.properties.correlationId == corr) {
-                logger.info("MESSAGE", msg);
+                logger.info("MESSAGE", msg.content.toString());
                 logger.info("[RPC-CONSUMMER] message return with uuid", corr)
                 successCallback(msg);
-                setTimeout(function () { conn.close(); process.exit(0) }, 500);
+                setTimeout(function () { conn.close(); process.exit(0) }, 100);
             }
         }, false, { noAck: true });
         sender(channel, queueName, message, { correlationId: corr, replyTo: "rpcQueue" });

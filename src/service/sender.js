@@ -9,7 +9,6 @@ logger.info(AMQP_URL)
 //create a connection
 amqp.connect(AMQP_URL)
     .then(function (conn) {
-        logger.info("[SENDER] send a message")
         var q = 'trainingQueue';
         conn.createChannel().then(function (channel) {
             var t = {};
@@ -18,7 +17,7 @@ amqp.connect(AMQP_URL)
             t.datas.name = "Blublu";
             t.datas.token = "user_token";
             // sender(channel,q,t,{})
-            rpcProducer(conn, channel, q, t, (msg) => logger.info("SUCCESSFUL RETURN: \n ", msg));
+            rpcProducer(conn, channel, q, t, (msg) => logger.info("SUCCESSFUL RETURN: \n ", msg.content.toString()));
 
         });
         // setTimeout(function() { conn.close(); process.exit(0) }, 500);
