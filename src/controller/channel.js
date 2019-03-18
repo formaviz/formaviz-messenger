@@ -1,11 +1,13 @@
 const omit = require('lodash.omit');
 const logger = require('../logger');
+const Answer = require('../model/answer.js');
 
-const createChannel = (datas, legacy_token) => {
-    if (datas.name == null) return new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel');
+
+const createChannel = (datas, param) => {
+    if (datas.name == null || param.legacyToken == null) return new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel');
     return web.channels.create({
         name: datas.name,
-        token: legacy_token
+        token: param.legacyToken
     }).then(channel => {
         logger.info("Channel created");
         return new Answer('CREATE_FORMATION', 'SUCCESS', 'Channel added')
@@ -15,11 +17,11 @@ const createChannel = (datas, legacy_token) => {
             return new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel');
         }
         );
-}
+};
 
 
-
-function postNote(datas) {
+/* 
+const postNote = (datas) => {
     web.chat.postMessage({
 
         name: datas.name,
@@ -29,5 +31,6 @@ function postNote(datas) {
     console.log('Message posted !');
 
 }
+*/
 
-export { createChannel, postNot };
+module.exports = { createChannel };

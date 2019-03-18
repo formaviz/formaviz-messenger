@@ -6,9 +6,9 @@ const uuidv4 = require('uuid/v4');
  * @param {*} channel 
  * @param {*} queueName 
  */
-const checkQueue = (channel,queueName) => {
-    return channel.checkQueue(queueName, function(ok,err){
-        if(err != null ) return reject(err); else return resolve(true);  
+const checkQueue = (channel, queueName) => {
+    return channel.checkQueue(queueName, function (ok, err) {
+        if (err != null) return reject(err); else return resolve(true);
     });
 };
 
@@ -21,27 +21,29 @@ const checkQueue = (channel,queueName) => {
  * @param {boolean} rpc 
  * @param {*} parameter {noAck: true} for example it's parameters RABBITMQ
  */
-const consume = (channel,queueName,successCallback,rpc,parameter) => {
-    return checkQueue(channel,queueName)
-    .then(() => {
-            if(rpc) {
+const consume = (channel, queueName, successCallback, rpc, parameter, parameterCallBack) => {
+    return checkQueue(channel, queueName)
+        .then(() => {
+            if (rpc) {
                 //allows to process one message at a time
                 channel.prefetch(1);
             }
-            return channel.consume(queueName, function(msg) {
-                logger.info("[CONSUMMER][",queueName,"] waiting consum a message ",msg.content)
+            return channel.consume(queueName, function (msg) {
+                logger.info("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content);
                 //execute callback
-                var result = successCallback(msg);
-                if(rpc) {
+                var result = successCallback(msg, parameterCallBack);
+
+                if (rpc) {
+                    logger.info("RESPONSE", result);
                     // send result to producer
                     channel.sendToQueue(msg.properties.replyTo,
-                         Buffer.from(JSON.stringify(result)),{correlationId: msg.properties.correlationId});
+                        Buffer.from(JSON.stringify(result)), { correlationId: msg.properties.correlationId });
                     //allows to infom to channel that the message has been treated
                     channel.ack(msg);
                 }
-              },parameter);
+            }, parameter);
         })
-    .catch((err)=>console.error("[CONSUME-RABBIT](ERR) : \n",err))
+        .catch((err) => console.error("[CONSUME-RABBIT](ERR) : \n", err))
 }
 
 /**
@@ -51,16 +53,16 @@ const consume = (channel,queueName,successCallback,rpc,parameter) => {
  * @param {object} message 
  * @param {object} parameter to send a message (for example { correlationId : corr, replyTo : q.queue}) for example
  */
-const sender = (channel,queueName,message,parameter) => {
-    return new Promise((resolve,reject) => 
-        channel.checkQueue(queueName, function(err,ok){
-        if(err != null ) return reject(err); else return resolve(true);  
-    })
-    .then(() => {
-            logger.info("[SENDER] send message")
-            return channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)),parameter);
-    }))
-    .catch((err)=>console.error("don't sent :",err))
+const sender = (channel, queueName, message, parameter) => {
+    return new Promise((resolve, reject) =>
+        channel.checkQueue(queueName, function (err, ok) {
+            if (err != null) return reject(err); else return resolve(true);
+        })
+            .then(() => {
+                logger.info("[SENDER] send message")
+                return channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), parameter);
+            }))
+        .catch((err) => console.error("don't sent :", err))
 }
 
 /**
@@ -71,29 +73,31 @@ const sender = (channel,queueName,message,parameter) => {
  * @param {*} message 
  * @param {*} successCallback function to apply if the message has been treated and that the consumer has send a message return 
  */
-const rpcProducer = (conn,channel,queueName,message,successCallback) => {
-    channel.assertQueue('rpc', { exclusive: true }).then(() => {
+const rpcProducer = (conn, channel, queueName, message, successCallback) => {
+    channel.assertQueue('rpcQueue', {}).then(() => {
         // generate an uuid to identify the request
         var corr = uuidv4();
-        consume(channel,"rpc",(msg)=>{
+        consume(channel, "rpcQueue", (msg) => {
             if (msg.properties != null && msg.properties.correlationId == corr) {
-                logger.info("[RPC-CONSUMMER] message return with uuid",corr)
-                successCallback();
-                setTimeout(function() { conn.close(); process.exit(0) }, 500);
+                logger.info("MESSAGE", msg);
+                logger.info("[RPC-CONSUMMER] message return with uuid", corr)
+                successCallback(msg);
+                setTimeout(function () { conn.close(); process.exit(0) }, 500);
             }
-        },false,{noAck: true});
-        sender(channel,queueName,message,{ correlationId: corr, replyTo: "rpc" });
-    });    
+        }, false, { noAck: true });
+        sender(channel, queueName, message, { correlationId: corr, replyTo: "rpcQueue" });
+    });
 }
 /**
  * allows to get a message with rpc pattern
  * @param {*} channel 
  * @param {String} queueName 
  * @param {Function} successCallback 
+ * @param {Array} parameter for the function callback
  */
-const rpcConsumer = (channel,queueName,successCallback) => {
-    logger.info("[RPC-CONSUMMER][",queueName,"] waiting consum a message ")
-    return consume(channel,queueName,successCallback,true,{});
+const rpcConsumer = (channel, queueName, successCallback, parameterCallBack) => {
+    logger.info("[RPC-CONSUMMER][", queueName, "] waiting consum a message ");
+    return consume(channel, queueName, successCallback, true, {}, parameterCallBack);
 }
 
-module.exports = {consume,sender,rpcConsumer,rpcProducer};
+module.exports = { consume, sender, rpcConsumer, rpcProducer };

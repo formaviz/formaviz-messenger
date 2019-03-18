@@ -6,3 +6,5 @@ class Answer {
         this.message = message
     }
 }
+
+module.exports = Answer;
