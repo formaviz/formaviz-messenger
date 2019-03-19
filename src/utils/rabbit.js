@@ -31,15 +31,15 @@ const consume = (channel, queueName, successCallback, rpc, parameter, parameterC
             return channel.consume(queueName, function (msg) {
                 logger.info("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content.toString());
                 //execute callback
-                var result = successCallback(msg, parameterCallBack);
-
+                let result = successCallback(msg, parameterCallBack);
                 if (rpc) {
-                    // logger.info("RESPONSE", result);
-                    // send result to producer
-                    channel.sendToQueue(msg.properties.replyTo,
-                        Buffer.from(JSON.stringify(result)), { correlationId: msg.properties.correlationId });
-                    //allows to infom to channel that the message has been treated
-                    channel.ack(msg);
+                    result.then((res)=>{                    
+                            // send result to producer
+                            channel.sendToQueue(msg.properties.replyTo,
+                                Buffer.from(JSON.stringify(res)), { correlationId: msg.properties.correlationId });
+                            //allows to infom to channel that the message has been treated
+                            channel.ack(msg);
+                    });
                 }
             }, parameter);
         })
@@ -76,10 +76,9 @@ const sender = (channel, queueName, message, parameter) => {
 const rpcProducer = (conn, channel, queueName, message, successCallback) => {
     channel.assertQueue('rpcQueue', {}).then(() => {
         // generate an uuid to identify the request
-        var corr = uuidv4();
+        let corr = uuidv4();
         consume(channel, "rpcQueue", (msg) => {
             if (msg.properties != null && msg.properties.correlationId == corr) {
-                logger.info("MESSAGE", msg.content.toString());
                 logger.info("[RPC-CONSUMMER] message return with uuid", corr)
                 successCallback(msg);
                 setTimeout(function () { conn.close(); process.exit(0) }, 100);

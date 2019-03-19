@@ -14,13 +14,11 @@ const createChannel = (datas, param) => {
     }).then((response) => {
         logger.info("Channel created");
         return new Answer('CREATE_FORMATION', 'SUCCESS', 'Channel added')
-    }
-    )
-        .catch((err) => {
-            logger.info("Channel fail",err);
-            return new Answer('CREATE_FORMATION', 'ERROR', err);
-        }
-        );
+    })
+    .catch((err) => {
+        logger.info("Channel fail",err);
+        return new Answer('CREATE_FORMATION', 'ERROR', err);
+    });
 };
 
 

@@ -14,7 +14,7 @@ amqp.connect(AMQP_URL)
             var t = {};
             t.eventType = "CREATE_FORMATION";
             t.datas = {};
-            t.datas.name = "Blublu";
+            t.datas.name = "Miage";
             t.datas.token = "user_token";
             // sender(channel,q,t,{})
             rpcProducer(conn, channel, q, t, (msg) => logger.info("SUCCESSFUL RETURN: \n ", msg.content.toString()));
