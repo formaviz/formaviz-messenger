@@ -7,7 +7,7 @@ const { WebClient } = require('@slack/client');
 
 const createChannel = (datas, param) => {
     let content = JSON.parse(datas.content.toString());
-    if (content.datas ==null || content.datas.name == null || param.legacyToken == null) return new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel');
+    if (content.datas == null || content.datas.name == null || param.legacyToken == null) return new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel');
     let web = new WebClient(param.legacyToken);
     return web.channels.create({
         name: content.datas.name
@@ -15,23 +15,20 @@ const createChannel = (datas, param) => {
         logger.info("Channel created");
         return new Answer('CREATE_FORMATION', 'SUCCESS', 'Channel added')
     })
-    .catch((err) => {
-        logger.info("Channel fail",err);
-        return new Answer('CREATE_FORMATION', 'ERROR', err);
-    });
+        .catch((err) => {
+            logger.info("Channel fail", err);
+            return new Answer('CREATE_FORMATION', 'ERROR', err);
+        });
 };
 
 
 /* 
 const postNote = (datas) => {
     web.chat.postMessage({
-
         name: datas.name,
         token: datas.token
-
     });
     console.log('Message posted !');
-
 }
 */
 
