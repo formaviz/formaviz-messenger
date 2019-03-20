@@ -4,18 +4,22 @@ const AMQP_URL = process.env.AMQP_URL || 'amqp://boowxrlb:L16RP-RTygwePbTrHb1uPO
 const AMQP_USER_QUEUE_NAME = process.env.USER_QUEUE_NAME || 'userQueue';
 const logger = require('../logger');
 const { consume, sender, rpcProducer } = require('../utils/rabbit.js')
-logger.info(AMQP_URL)
 
 //create a connection
 amqp.connect(AMQP_URL)
     .then(function (conn) {
-        var q = 'trainingQueue';
+        var q = 'userQueue';
         conn.createChannel().then(function (channel) {
             var t = {};
             t.eventType = "CREATE_FORMATION";
             t.datas = {};
-            t.datas.name = "Miage";
+            t.datas.name = "blublu";
             t.datas.token = "user_token";
+            t.datas.userName = "Super";
+            t.datas.userFistName = "Rabbit";
+            // t.datas.email = "superlapin@rabbit.mq";
+            t.datas.email = "ouarkoub.feriel@gmail.com";
+            t.datas.textNote = "basDeGamme 2";
             // sender(channel,q,t,{})
             rpcProducer(conn, channel, q, t, (msg) => logger.info("SUCCESSFUL RETURN: \n ", msg.content.toString()));
 
