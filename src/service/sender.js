@@ -8,12 +8,12 @@ const { consume, sender, rpcProducer } = require('../utils/rabbit.js')
 //create a connection
 amqp.connect(AMQP_URL)
     .then(function (conn) {
-        var q = 'evalQueue';
+        var q = 'userQueue';
         conn.createChannel().then(function (channel) {
             var t = {};
             t.eventType = "CREATE_FORMATION";
             t.datas = {};
-            t.datas.name = "Miage_bad_gamme";
+            t.datas.name = "blublu";
             t.datas.token = "user_token";
             t.datas.userName = "Super";
             t.datas.userFistName = "Rabbit";
