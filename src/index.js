@@ -1,5 +1,5 @@
 const { consume, rpcConsumer } = require('./utils/rabbit.js')
-const { createChannel } = require('./controller/channel.js');
+const { createChannel,postNote} = require('./controller/channel.js');
 const amqp = require('amqplib');
 const logger = require('./logger');
 require("dotenv").config();
@@ -25,7 +25,7 @@ amqp.connect(AMQP_URL).then(function (conn) {
     param.legacyToken = LEGACY_TOKEN;
     rpcConsumer(channel, AMQP_USER_QUEUE_NAME, (object, object2) => { logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue : ", AMQP_USER_QUEUE_NAME, "\nLegacy Token :", object2.token); return object; }, param);
     rpcConsumer(channel, AMQP_TRAINING_QUEUE_NAME, createChannel, param);
-    rpcConsumer(channel, AMQP_EVAL_QUEUE_NAME, (object) => { logger.info("[EXECUTE CALLBACK SUCCESS IN PRODUCTER] Queue :", AMQP_EVAL_QUEUE_NAME); return object; }, param);
+    rpcConsumer(channel, AMQP_EVAL_QUEUE_NAME,postNote , param);
 
   })
     .catch(function (err) {
