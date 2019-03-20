@@ -58,7 +58,7 @@ const inviteUser = (datas, param) => {
             return res
         })
         .then(res => {
-            let data = { 'token': param.legacyToken, 'channel': res, 'text': content.datas.userName + " a évalué : " + content.datas.textNote }
+            let data = { 'token': param.legacyToken, 'channels': content.datas.name, 'email': content.datas.email }
             request.post({ 'url': 'https://slack.com/api/users.admin.invite', 'qs': data },
                 (error, response, body) =>
                     error ? Promise.reject(error) : Promise.resolve(body))
