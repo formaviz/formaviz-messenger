@@ -21,32 +21,35 @@ const createChannel = (datas, param) => {
         });
 };
 
-
-const getChannelIdByName = (datas, token) => {
+const getChannelsByName = (datas, token) => {
+    logger.info("[ GET CHANNEL BY ID ]")
     return new Promise((resolve, reject) => {
         let data = { 'token': token };
-        logger.info(data)
         request.get({ 'url': 'https://slack.com/api/conversations.list', 'qs': data, 'json': true },
             (error, response, body) => error ? reject(error) : resolve(body))
     })
-
         .then(res => {
-            // logger.logger(res.channels);
+            if (res.ok == null || res.ok == false) return Promise.reject("Channel not found");
             let channelFilter = res.channels.filter(channel => channel.name == datas.name.toLowerCase());
             if (channelFilter.length == 1) {
-                return Promise.resolve(channelFilter[0].id);
+                return Promise.resolve(channelFilter[0]);
             }
-            return Promise.resolve(false);
+            return Promise.reject("Channel not found");
         })
+}
+
+const getChannelIdByName = (datas, token) => {
+    return getChannelsByName(datas, token).then((res) => {
+        return res.id
+    })
 };
 
 const postNote = (datas, param) => {
-    logger.info(datas)
+    logger.info("[ POST NOTE ]")
     let content = JSON.parse(datas.content.toString());
     if (content.datas == null || content.datas.name == null || param.legacyToken == null || content.datas.textNote == null) return new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note');
     return getChannelIdByName(content.datas, param.legacyToken)
         .then((res) => {
-            // logger.info(res)
             if (!res || res == null) return Promise.reject("Channel not found");
             return res
         })
@@ -64,4 +67,4 @@ const postNote = (datas, param) => {
 
 };
 
-module.exports = { createChannel, postNote };
+module.exports = { createChannel, postNote, getChannelIdByName };

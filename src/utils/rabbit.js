@@ -32,15 +32,14 @@ const consume = (channel, queueName, successCallback, rpc, parameter, parameterC
                 logger.info("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content.toString());
                 //execute callback
                 let result = successCallback(msg, parameterCallBack);
-                
+
                 if (rpc) {
-                    logger.info(result);
-                    result.then((res)=>{                    
-                            // send result to producer
-                            channel.sendToQueue(msg.properties.replyTo,
-                                Buffer.from(JSON.stringify(res)), { correlationId: msg.properties.correlationId });
-                            //allows to infom to channel that the message has been treated
-                            channel.ack(msg);
+                    result.then((res) => {
+                        // send result to producer
+                        channel.sendToQueue(msg.properties.replyTo,
+                            Buffer.from(JSON.stringify(res)), { correlationId: msg.properties.correlationId });
+                        //allows to infom to channel that the message has been treated
+                        channel.ack(msg);
                     });
                 }
             }, parameter);
