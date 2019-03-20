@@ -34,8 +34,7 @@ const consume = (channel, queueName, successCallback, rpc, parameter, parameterC
                 let result = successCallback(msg, parameterCallBack);
                 
                 if (rpc) {
-                    logger.info(result);
-                    result.then((res)=>{                    
+                    result.then((res)=>{              
                             // send result to producer
                             channel.sendToQueue(msg.properties.replyTo,
                                 Buffer.from(JSON.stringify(res)), { correlationId: msg.properties.correlationId });
