@@ -1,35 +1,15 @@
 const express = require('express');
-const { addMember, addChannel } = require('../controller/channel');
+const {getUrl} = require('../controller/channel');
 const logger = require('../logger');
+const Answer = require('../model/answer.js');
 
 const apiChannel = express.Router();
 
 
 apiChannel.get('/', (req, res) => {
-    logger.info();
-    var legacyToken = req.body.token;
-    var mail = req.body.mail;
-    var name = req.body.name;
-    !legacyToken || !mail || !name
-        ? res.status(400).send({
-            success: false,
-            message: 'legacyToken mail and name are required'
-        })
-        : addMember(legacyToken, mail, name)
-            .then(channel => {
-                return res.status(201).send({
-                    success: true,
-                    channel: channel,
-                    message: 'add Channel'
-                });
-            })
-            .catch(err => {
-                logger.error(`💥 Failed to add channel : ${err.stack}`);
-                return res.status(500).send({
-                    success: false,
-                    message: `${err.name} : ${err.message}`
-                });
-            })
-}
-);
+    logger.info(req.query.training);
+    return getUrl(req.query.training)
+        .then((result) => res.status(200).send(result))
+        .catch(err => res.status(404).send(new Answer('GET URL', 'ERROR', `${err.message}`)))
+});
 module.exports = { apiChannel };
