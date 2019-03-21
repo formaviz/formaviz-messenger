@@ -1,13 +1,12 @@
 const hpp = require('hpp');
-const cors = require('cors')
+const cors = require('cors');
 const helmet = require('helmet');
 const express = require('express');
-const bodyParser = require('body-parser');
-// const enforce = require('express-sslify');
+
 
 // create an express Application for our api
 const api = express();
-api.use(cors())
+api.use(cors());
 api.use(hpp());
 api.use(helmet());
 // api.use(enforce.HTTPS({ trustProtoHeader: true }));
@@ -16,13 +15,16 @@ api.use(helmet());
 api.use(express.json({ limit: '1mb' }));
 // create an express router that will be mount at the root of the api
 const apiRoutes = express.Router();
-
+const {apiChannel} = require('../api/channel');
 
 apiRoutes
   // test api
   .get('/', (req, res) =>
-    res.status(200).send({ message: 'hello from my api' })
+      res.status(200).send({message: 'hello from my api'})
   )
+
+    .use('/channels', apiChannel)
+
   .use((err, req, res, next) => {
     res.status(403).send({
       success: false,
