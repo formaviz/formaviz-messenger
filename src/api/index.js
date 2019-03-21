@@ -2,7 +2,7 @@ const hpp = require('hpp');
 const cors = require('cors');
 const helmet = require('helmet');
 const express = require('express');
-// const logger = require('../logger');
+
 
 // create an express Application for our api
 const api = express();
