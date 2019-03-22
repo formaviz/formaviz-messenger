@@ -9,9 +9,12 @@ const createChannel = (params, param) => {
     const web = new WebClient(param.legacyToken);
     return web.channels.create({
         name: content.data.name
-    }).then(() => {
-        logger.info("Channel created");
-        return new Answer('CREATE_FORMATION', 'SUCCESS', 'Channel added')
+    }).then((response) => {
+        logger.info("Channel created with id", response.channel.id);
+        const objectResponse = {
+            url: `${process.env.SLACK_REDIRECT_IHM}?channel=${response.channel.id}`
+        };
+        return new Answer('CREATE_FORMATION', 'SUCCESS', objectResponse)
     })
         .catch((err) => {
             logger.info("Channel fail", err);
@@ -23,7 +26,7 @@ const getChannelsByName = (params, token) => {
     logger.info("[ GET CHANNEL BY ID ]");
     return new Promise((resolve, reject) => {
         const data = {'token': token};
-        request.get({'url': 'https://slack.com/api/conversations.list', 'qs': data, 'json': true},
+        request.get({'url': `${process.env.SLACK_URL}/conversations.list`, 'qs': data, 'json': true},
             (error, response, body) => error ? reject(new Error(error)) : resolve(body))
     })
         .then(res => {
@@ -48,7 +51,7 @@ const getChannelIdByName = (params, token) => {
 const postNote = (params, param) => {
     logger.info("[ POST NOTE ]");
     const content = JSON.parse(params.content.toString());
-    if (content.data == null || content.data.name == null || param.legacyToken == null || content.data.textNote == null) return new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note');
+    if (content.data == null || content.data.name == null || param.legacyToken == null || content.data.textNote == null || content.data.email == null) return new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note');
     return getChannelIdByName(content.data, param.legacyToken)
         .then((res) => {
             if (!res) return Promise.reject(new Error("Channel not found"));
@@ -58,9 +61,9 @@ const postNote = (params, param) => {
             const data = {
                 'token': param.legacyToken,
                 'channel': res,
-                'text': `${content.data.userName  } a évalué : ${  content.data.textNote}`
+                'text': `${content.data.email  } a évalué : ${  content.data.textNote}`
             };
-            request.post({'url': 'https://slack.com/api/chat.postMessage', 'qs': data},
+            request.post({'url': `${process.env.SLACK_URL}/chat.postMessage`, 'qs': data},
                 (error, response, body) =>
                     error ? Promise.reject(new Error(error)) : Promise.resolve(body))
         })
@@ -79,7 +82,7 @@ const getUrl = (name) => {
     return getChannelIdByName({"name": name}, legacyToken)
         .then((res) => {
             if (!res) return Promise.reject(new Error("Channel not found"));
-            return Promise.resolve(new Answer('GET URL', 'SUCCESS', `https://slack.com/app_redirect?channel=${res}`));
+            return Promise.resolve(new Answer('GET URL', 'SUCCESS', `${process.env.SLACK_REDIRECT_IHM}?channel=${res}`));
         })
         .catch(err => {
             return Promise.reject(new Error(err.message))
