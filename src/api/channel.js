@@ -1,5 +1,5 @@
 const express = require('express');
-const {getUrl} = require('../controller/channel');
+const { getUrl } = require('../controller/channel');
 const logger = require('../logger');
 const Answer = require('../model/answer.js');
 
