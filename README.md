@@ -57,7 +57,7 @@ npm install @slack/client
 
 3. Environment variables configuration 
 
-The .env file contains default values for the environment variables needed by the server.
+The .env file contains default values for the environment variables needed by the server.You can find the variables values in the google's drive file : QSI/messenger :  "Definiion des variables"
 
   * AMQP_URL : Our RabbitMQ server's address 
   
