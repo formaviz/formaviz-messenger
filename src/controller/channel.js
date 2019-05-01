@@ -3,14 +3,16 @@ const request = require('request');
 const logger = require('../logger');
 const Answer = require('../model/answer.js');
 
-const createChannel = (params, param) => {
+const createChannel = (params, legacyToken) => {
     const content = JSON.parse(params.content.toString());
-    if (content.data == null || content.data.name == null || param.legacyToken == null) return Promise.resolve(new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel'));
-    const web = new WebClient(param.legacyToken);
+    if (content.data == null || content.data.name == null || legacyToken == null) {
+        return Promise.resolve(new Answer('CREATE_FORMATION', 'ERROR', 'Failed to add Channel'));
+    }
+    const web = new WebClient(legacyToken);
     return web.channels.create({
         name: content.data.name
     }).then((response) => {
-        logger.info("Channel created with id", response.channel.id);
+        logger.debug("Channel created with id", response.channel.id);
         const objectResponse = {
             url: `${process.env.SLACK_REDIRECT_IHM}?channel=${response.channel.id}`
         };
@@ -23,14 +25,14 @@ const createChannel = (params, param) => {
 };
 
 const getChannelsByName = (params, token) => {
-    logger.info("[ GET CHANNEL BY ID ]");
+    logger.debug("[ GET CHANNEL BY ID ]");
     return new Promise((resolve, reject) => {
         const data = {'token': token};
         request.get({'url': `${process.env.SLACK_URL}/conversations.list`, 'qs': data, 'json': true},
             (error, response, body) => error ? reject(new Error(error)) : resolve(body))
     })
         .then(res => {
-            if (res.ok == null || res.ok === false) return Promise.reject(new Error("Channel not found"));
+            if (!res.ok) return Promise.reject(new Error("Channel not found"));
             const channelFilter = res.channels.filter(channel => channel.name === params.name.toLowerCase());
             if (channelFilter.length === 1) {
                 return Promise.resolve(channelFilter[0]);
@@ -48,18 +50,18 @@ const getChannelIdByName = (params, token) => {
         })
 };
 
-const postNote = (params, param) => {
-    logger.info("[ POST NOTE ]");
+const postNote = (params, legacyToken) => {
+    logger.debug("[ POST NOTE ]");
     const content = JSON.parse(params.content.toString());
-    if (content.data == null || content.data.name == null || param.legacyToken == null || content.data.textNote == null || content.data.email == null) return new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note');
-    return getChannelIdByName(content.data, param.legacyToken)
+    if (content.data == null || content.data.name == null || legacyToken == null || content.data.textNote == null || content.data.email == null) return new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note');
+    return getChannelIdByName(content.data, legacyToken)
         .then((res) => {
             if (!res) return Promise.reject(new Error("Channel not found"));
             return res
         })
         .then(res => {
             const data = {
-                'token': param.legacyToken,
+                'token': legacyToken,
                 'channel': res,
                 'text': `${content.data.email  } a évalué : ${  content.data.textNote}`
             };
