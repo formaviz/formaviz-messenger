@@ -20,9 +20,9 @@ const checkQueue = (channel, queueName) => {
  * @param {Function} successCallback function which return an object
  * @param {boolean} rpc
  * @param {*} parameter {noAck: true} for example it's parameters RABBITMQ
- * @param parameterCallBack
+ * @param token
  */
-const consume = (channel, queueName, successCallback, rpc, parameter, parameterCallBack) => {
+const consume = (channel, queueName, successCallback, rpc, parameter, token) => {
     return checkQueue(channel, queueName)
         .then(() => {
             if (rpc) {
@@ -30,9 +30,9 @@ const consume = (channel, queueName, successCallback, rpc, parameter, parameterC
                 channel.prefetch(1);
             }
             return channel.consume(queueName, (msg) => {
-                logger.info("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content.toString());
+                logger.debug("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content.toString());
                 // execute callback
-                const result = successCallback(msg, parameterCallBack);
+                const result = successCallback(msg, token);
 
                 if (rpc) {
                     result.then((res) => {
@@ -61,7 +61,7 @@ const sender = (channel, queueName, message, parameter) => {
             return err != null ? reject(err) : resolve(true);
         })
             .then(() => {
-                logger.info("[SENDER] send message");
+                logger.debug("[SENDER] send message");
                 return channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), parameter);
             }))
         .catch((err) => logger.error("don't sent :", err))
@@ -81,7 +81,7 @@ const rpcProducer = (conn, channel, queueName, message, successCallback) => {
         const corr = uuidv4();
         consume(channel, "rpcQueue", (msg) => {
             if (msg.properties != null && msg.properties.correlationId === corr) {
-                logger.info("[RPC-CONSUMMER] message return with uuid", corr);
+                logger.debug("[RPC-CONSUMMER] message return with uuid", corr);
                 successCallback(msg);
                 setTimeout(() => {
                     conn.close();
@@ -97,11 +97,11 @@ const rpcProducer = (conn, channel, queueName, message, successCallback) => {
  * @param {*} channel
  * @param {String} queueName
  * @param {Function} successCallback
- * @param {Array} parameterCallBack for the function callback
+ * @param {String} token for the function callback
  */
-const rpcConsumer = (channel, queueName, successCallback, parameterCallBack) => {
-    logger.info("[RPC-CONSUMMER][", queueName, "] waiting consum a message ");
-    return consume(channel, queueName, successCallback, true, {}, parameterCallBack);
+const rpcConsumer = (channel, queueName, successCallback, token) => {
+    logger.debug("[RPC-CONSUMMER][", queueName, "] waiting consum a message ");
+    return consume(channel, queueName, successCallback, true, {}, token);
 };
 
 module.exports = { consume, sender, rpcConsumer, rpcProducer };

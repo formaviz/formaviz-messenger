@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/miage-lille/miage-auth.git"
+    "url": "git+https://github.com/miage-lille/formaviz.git"
   },
   "engines": {
     "node": "^10"
@@ -45,8 +45,6 @@
     "pino": "^5.10.6",
     "pino-pretty": "^2.5.0",
     "request": "^2.88.0",
-    "url-search-params-polyfill": "^5.0.0",
-    "uuid": "^3.3.2",
-    "whatwg-fetch": "^3.0.0"
+    "uuid": "^3.3.2"
   }
 }
