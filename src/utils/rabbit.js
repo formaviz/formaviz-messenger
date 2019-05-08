@@ -35,6 +35,7 @@ const consume = (channel, queueName, successCallback, rpc, parameter, token) => 
                 const result = successCallback(msg, token);
 
                 if (rpc) {
+                    logger.info(result)
                     result.then((res) => {
                         // send result to producer
                         channel.sendToQueue(msg.properties.replyTo,
