@@ -53,7 +53,7 @@ const getChannelIdByName = (params, token) => {
 const postNote = (params, legacyToken) => {
     logger.debug("[ POST NOTE ]");
     const content = JSON.parse(params.content.toString());
-    if (content.data == null || content.data.name == null || legacyToken == null || content.data.textNote == null || content.data.email == null) return new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note');
+    if (content.data == null || content.data.name == null || legacyToken == null || content.data.textNote == null || content.data.email == null) return Promise.reject(new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note'));
     return getChannelIdByName(content.data, legacyToken)
         .then((res) => {
             if (!res) return Promise.reject(new Error("Channel not found"));
