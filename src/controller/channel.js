@@ -45,36 +45,31 @@ const getChannelIdByName = (params, token) => {
     return getChannelsByName(params, token).then((res) => {
         return res.id
     })
-        .catch(err => {
-            return Promise.reject(new Error(err.message))
-        })
-};
+}
 
 const postNote = (params, legacyToken) => {
-    logger.debug("[ POST NOTE ]");
     const content = JSON.parse(params.content.toString());
-    if (content.data == null || content.data.name == null || legacyToken == null || content.data.textNote == null || content.data.email == null) return Promise.reject(new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note'));
-    return getChannelIdByName(content.data, legacyToken)
-        .then((res) => {
-            if (!res) return Promise.reject(new Error("Channel not found"));
-            return res
-        })
-        .then(res => {
-            const data = {
-                'token': legacyToken,
-                'channel': res,
-                'text': `${content.data.email  } a évalué : ${  content.data.textNote}`
-            };
-            request.post({'url': `${process.env.SLACK_URL}/chat.postMessage`, 'qs': data},
-                (error, response, body) =>
-                    error ? Promise.reject(new Error(error)) : Promise.resolve(body))
-        })
-        .then((response) => {
-            return new Answer('Eval_FORMATION', 'SUCCESS', response);
-        })
-        .catch(err => {
-            return new Answer('Eval_FORMATION', 'ERROR', err.message)
-        });
+    logger.info("[ POST NOTE ]",content);
+    if (content.data == null || content.data.name == null || legacyToken == null || content.data.textNote == null || content.data.email == null || content.data.idChannel == null)  return Promise.resolve(new Answer('EVAL_FORMATION', 'ERROR', 'Failed to post a note : missing argument'));
+    return new Promise((resolve,reject) => {
+        const data = {
+            'token': legacyToken,
+            'channel': content.data.idChannel,
+            'text': `${content.data.email  } a évalué la formation : ${  content.data.textNote}`
+        };
+        logger.info("[ POST NOTE ] before request post", process.env.SLACK_URL);
+        request.post({'url': `${process.env.SLACK_URL}/chat.postMessage`, 'qs': data},
+            (error, response, body) =>
+                error ? reject(new Error(error)) : resolve(body))
+    })
+    .then((response) => {
+        logger.info("success");
+        return new Answer('Eval_FORMATION', 'SUCCESS', response);
+    })
+    .catch(err => {
+        logger.info("error",err)
+        return new Answer('Eval_FORMATION', 'ERROR', err.message)
+    });
 
 };
 
