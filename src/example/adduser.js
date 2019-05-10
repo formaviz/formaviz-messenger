@@ -15,7 +15,6 @@ amqp.connect(AMQP_URL)
             eventType: 'ADD_USER',
             data: {
                 name: 'dut-info_lens',
-                // email : 'malk59600@gmail.com'
                 email : 'christophe.maingard@davidson.fr'
             }
         };

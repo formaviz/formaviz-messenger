@@ -7,17 +7,18 @@ const AMQP_EVAL_QUEUE_NAME = process.env.AMQP_EVAL_QUEUE_NAME || 'evalQueue';
 const amqp = require('amqplib');
 const {rpcProducer} = require('../utils/rabbit.js');
 const logger = require('../logger');
-
 // create a connection
 amqp.connect(AMQP_URL)
     .then((conn) => {
         const t = {
             eventType: 'EVAL_FORMATION ',
             data: {
-                name: 'superlapinou',
-                username: 'Lapin Crétin',
+                name: 'dut-info_lens',
+                // name: 'superlapinou',
+                // username: 'Lapin Crétin',
                 email: 'lapin.cretin@po.rc',
-                textNote: 'Bad de gamme'
+                textNote: 'Bad de gamme',
+                idChannel : 'CJD1STM4H'
             }
         };
         // t.eventType = "CREATE_FORMATION";

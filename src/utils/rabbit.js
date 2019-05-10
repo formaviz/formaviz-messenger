@@ -23,6 +23,7 @@ const checkQueue = (channel, queueName) => {
  * @param token
  */
 const consume = (channel, queueName, successCallback, rpc, parameter, token) => {
+    logger.info("[consume] begin")
     return checkQueue(channel, queueName)
         .then(() => {
             if (rpc) {
@@ -30,13 +31,14 @@ const consume = (channel, queueName, successCallback, rpc, parameter, token) => 
                 channel.prefetch(1);
             }
             return channel.consume(queueName, (msg) => {
-                logger.debug("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content.toString());
+                logger.info("[CONSUMMER][", queueName, "] waiting consum a message ", msg.content.toString());
                 // execute callback
                 const result = successCallback(msg, token);
 
                 if (rpc) {
-                    logger.info(result)
+                    logger.debug("IN RPC",result)
                     result.then((res) => {
+                        
                         // send result to producer
                         channel.sendToQueue(msg.properties.replyTo,
                             Buffer.from(JSON.stringify(res)), {correlationId: msg.properties.correlationId});
@@ -101,7 +103,7 @@ const rpcProducer = (conn, channel, queueName, message, successCallback) => {
  * @param {String} token for the function callback
  */
 const rpcConsumer = (channel, queueName, successCallback, token) => {
-    logger.debug("[RPC-CONSUMMER][", queueName, "] waiting consum a message ");
+    logger.info("[RPC-CONSUMMER][", queueName, "] waiting consum a message ");
     return consume(channel, queueName, successCallback, true, {}, token);
 };
 
