@@ -14,8 +14,10 @@ amqp.connect(AMQP_URL)
         const data = {
             eventType: 'ADD_USER',
             data: {
-                name: 'dut-info_lens',
-                email : 'christophe.maingard@davidson.fr'
+                name: 'l3-miage_villeneuve-d',
+                idChannel: 'CJ9PCEV7U',
+                // email : 'christophe.maingard@davidson.fr',
+                email : 'amelie.brilhault@gmail.com'
             }
         };
 
